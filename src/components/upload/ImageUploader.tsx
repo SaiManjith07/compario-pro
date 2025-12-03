@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useActionState } from 'react-dom';
+import { useState, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -81,19 +80,18 @@ export function ImageUploader() {
     if(fileInput) fileInput.value = '';
   };
   
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    if (file) {
-      formData.set('image', file);
-    }
-    formAction(formData);
-  };
-  
   return (
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form 
+          action={(formData) => {
+            if (file) {
+              formData.set('image', file);
+            }
+            formAction(formData);
+          }} 
+          className="space-y-6"
+        >
           <div className="space-y-2">
             {!imagePreview ? (
               <label
