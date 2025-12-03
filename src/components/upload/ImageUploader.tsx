@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useActionState } from 'react';
+import { useState, useEffect } from 'react';
+import { useActionState } from 'react-dom';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -9,11 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { detectProductFromImage } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { Badge } from '../ui/badge';
 
 const initialState = {
-  status: 'idle',
+  status: 'idle' as 'idle' | 'success' | 'error',
   message: '',
   productName: null,
   suggestedNames: [],
@@ -82,10 +81,19 @@ export function ImageUploader() {
     if(fileInput) fileInput.value = '';
   };
   
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    if (file) {
+      formData.set('image', file);
+    }
+    formAction(formData);
+  };
+  
   return (
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        <form action={formAction} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             {!imagePreview ? (
               <label
@@ -101,7 +109,7 @@ export function ImageUploader() {
                 </div>
                 <input
                   id="image-upload"
-                  name="image"
+                  name="image-input" // Use different name to avoid conflict
                   type="file"
                   className="hidden"
                   accept="image/png, image/jpeg, image/webp"
