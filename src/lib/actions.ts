@@ -91,3 +91,48 @@ export async function searchPrices(productName: string): Promise<ComparisonData>
     summary: summaryResult.summary,
   };
 }
+
+
+async function parseCsv(file: File): Promise<string[]> {
+    const text = await file.text();
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    if (lines.length < 2) return [];
+
+    const header = lines[0].split(',').map(h => h.trim());
+    const productIndex = header.findIndex(h => h.toLowerCase() === 'productname');
+
+    if (productIndex === -1) {
+        throw new Error("CSV must have a 'ProductName' column.");
+    }
+
+    return lines.slice(1).map(line => {
+        const columns = line.split(',');
+        return columns[productIndex]?.trim();
+    }).filter(Boolean);
+}
+
+
+export async function processCsv(prevState: any, formData: FormData) {
+    const csvFile = formData.get('csv') as File;
+
+    if (!csvFile || csvFile.size === 0) {
+        return { status: 'error', message: 'Please select a CSV file.' };
+    }
+
+    try {
+        const productNames = await parseCsv(csvFile);
+        
+        const comparisonResults = await Promise.all(
+            productNames.map(name => searchPrices(name))
+        );
+
+        return {
+            status: 'success',
+            results: comparisonResults,
+        };
+
+    } catch (error: any) {
+        console.error('Error in processCsv:', error);
+        return { status: 'error', message: error.message || 'Failed to process CSV file.' };
+    }
+}
