@@ -4,7 +4,7 @@ import { PriceResult } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRight, ShoppingBag } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PriceCardProps {
@@ -24,21 +24,12 @@ export function PriceCard({ result, isBestPrice }: PriceCardProps) {
   return (
     <Card className={cn("flex flex-col transition-all", isBestPrice && "border-primary ring-2 ring-primary")}>
       <CardHeader className="relative">
-        <div className="aspect-[4/3] relative w-full overflow-hidden rounded-md bg-muted">
-          <Image
-            src={result.image}
-            alt={result.title}
-            fill
-            className="object-cover"
-            data-ai-hint="product image"
-          />
-        </div>
         {isBestPrice && (
-          <Badge className="absolute top-5 right-5">Best Price</Badge>
+          <Badge className="absolute top-2 right-2">Best Price</Badge>
         )}
+        <StoreLogo />
       </CardHeader>
       <CardContent className="flex-grow space-y-2">
-        <StoreLogo />
         <p className="font-semibold text-foreground line-clamp-2 h-[40px]">{result.title}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center">

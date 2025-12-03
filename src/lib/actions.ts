@@ -38,28 +38,29 @@ export async function detectProductFromImage(prevState: any, formData: FormData)
 function generateMockPrices(productName: string): PriceResult[] {
   const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
   const results: PriceResult[] = [];
-  const basePrice = 500 + Math.random() * 500;
+  // Use a hash of the product name to generate a more consistent base price
+  const nameHash = productName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+  const basePrice = (Math.abs(nameHash) % 30000) + 5000; // Prices between ₹50 and ₹350
 
-  if (PlaceHolderImages.length === 0) {
-    return [];
-  }
-
-  stores.forEach((store) => {
-    const priceVariation = (Math.random() - 0.5) * 100;
-    const price = parseFloat((basePrice + priceVariation).toFixed(2));
+  stores.forEach((store, index) => {
+    // Each store has a slightly different pricing strategy
+    const storeMultiplier = 1 + (index - 2) * 0.05; // -10% to +10% variation
+    const randomFactor = (Math.random() - 0.5) * 0.1; // +/- 5% random jitter
+    const price = parseFloat((basePrice * (storeMultiplier + randomFactor)).toFixed(2));
     const imageIndex = Math.floor(Math.random() * PlaceHolderImages.length);
 
     results.push({
       store,
-      title: `${productName} - ${store} Special Edition`,
+      title: `${productName} - ${store} Deal`,
       price,
       url: `https://example.com/${store.toLowerCase().replace(' ','-')}/${productName.replace(/\s/g, '-')}`,
-      image: PlaceHolderImages[imageIndex].imageUrl,
+      image: PlaceHolderImages[imageIndex]?.imageUrl || '',
     });
   });
 
-  return results;
+  return results.sort((a, b) => a.price - b.price);
 }
+
 
 export async function searchPrices(productName: string): Promise<ComparisonData> {
   if (!productName) {
