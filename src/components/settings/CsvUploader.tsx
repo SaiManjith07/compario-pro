@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useActionState, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
 import { UploadCloud, X, Loader2, Table, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { processCsv } from '@/lib/actions';
@@ -15,25 +14,6 @@ const initialState = {
   results: [] as any[],
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Processing...
-        </>
-      ) : (
-        <>
-          <Table className="mr-2 h-4 w-4" />
-          Process CSV
-        </>
-      )}
-    </Button>
-  );
-}
-
 export default function CsvUploader() {
   const [state, formAction] = useActionState(processCsv, initialState);
   const { toast } = useToast();
@@ -41,6 +21,7 @@ export default function CsvUploader() {
 
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     if (state.status === 'success' && state.results.length > 0) {
@@ -57,12 +38,14 @@ export default function CsvUploader() {
           });
         }
       });
+      setIsPending(false);
     } else if (state.status === 'error') {
       toast({
         variant: 'destructive',
         title: 'An error occurred',
         description: state.message,
       });
+      setIsPending(false);
     }
   }, [state, toast, addHistoryEntry]);
 
@@ -79,6 +62,23 @@ export default function CsvUploader() {
     setFileName(null);
     const fileInput = document.getElementById('csv-upload') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
+  };
+  
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!file) {
+      toast({
+        variant: 'destructive',
+        title: 'An error occurred',
+        description: 'Please select a CSV file.',
+      });
+      return;
+    }
+
+    setIsPending(true);
+    const formData = new FormData();
+    formData.append('csv', file);
+    formAction(formData);
   };
   
   return (
@@ -100,15 +100,7 @@ export default function CsvUploader() {
         </div>
       </CardHeader>
       <CardContent className="p-6">
-        <form 
-          action={(formData) => {
-            if (file) {
-              formData.set('csv', file);
-            }
-            formAction(formData);
-          }} 
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             {!file ? (
               <label
@@ -124,7 +116,7 @@ export default function CsvUploader() {
                 </div>
                 <input
                   id="csv-upload"
-                  name="csv-input" // Use a different name to avoid conflict
+                  name="csv"
                   type="file"
                   className="hidden"
                   accept=".csv"
@@ -148,7 +140,21 @@ export default function CsvUploader() {
               </div>
             )}
           </div>
-          {file && <SubmitButton />}
+          {file && (
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Table className="mr-2 h-4 w-4" />
+                  Process CSV
+                </>
+              )}
+            </Button>
+          )}
         </form>
         {state.status === 'success' && state.results.length > 0 && (
           <div className="mt-6">
@@ -167,7 +173,7 @@ export default function CsvUploader() {
                     {state.results.map((result, index) => (
                       <tr key={index} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                         <td className="p-4 align-middle font-medium">{result.productName}</td>
-                        <td className="p-4 align-middle">${result.bestPrice?.price.toFixed(2)}</td>
+                        <td className="p-4 align-middle">₹{result.bestPrice?.price.toFixed(2)}</td>
                         <td className="p-4 align-middle">{result.bestPrice?.store}</td>
                       </tr>
                     ))}

@@ -42,7 +42,7 @@ export function PriceCard({ result, isBestPrice }: PriceCardProps) {
         <p className="font-semibold text-foreground line-clamp-2 h-[40px]">{result.title}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <p className="text-2xl font-bold font-headline text-primary">${result.price.toFixed(2)}</p>
+        <p className="text-2xl font-bold font-headline text-primary">₹{result.price.toFixed(2)}</p>
         <Button asChild>
           <Link href={result.url} target="_blank" rel="noopener noreferrer">
             Shop

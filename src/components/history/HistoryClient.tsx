@@ -81,7 +81,7 @@ export default function HistoryClient() {
           {history.map((item) => (
             <TableRow key={item.id}>
               <TableCell className="font-medium">{item.productName}</TableCell>
-              <TableCell className="hidden md:table-cell">${item.bestPrice.toFixed(2)}</TableCell>
+              <TableCell className="hidden md:table-cell">₹{item.bestPrice.toFixed(2)}</TableCell>
               <TableCell className="hidden lg:table-cell">{item.store}</TableCell>
               <TableCell className="hidden lg:table-cell">
                 {format(new Date(item.timestamp), 'MMM d, yyyy')}

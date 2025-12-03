@@ -79,7 +79,7 @@ export default function DashboardPage() {
           />
           <StatCard
             title="Best Price Found"
-            value={latestSearch ? `$${latestSearch.bestPrice.toFixed(2)}` : 'N/A'}
+            value={latestSearch ? `₹${latestSearch.bestPrice.toFixed(2)}` : 'N/A'}
             icon={BarChart}
             isLoading={!isLoaded}
           />
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                   {history.slice(0, 3).map(item => (
                     <li key={item.id} className="flex justify-between items-center">
                       <span>{item.productName}</span>
-                      <span className="font-semibold">${item.bestPrice.toFixed(2)}</span>
+                      <span className="font-semibold">₹{item.bestPrice.toFixed(2)}</span>
                     </li>
                   ))}
                 </ul>
