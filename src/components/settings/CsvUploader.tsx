@@ -100,7 +100,15 @@ export default function CsvUploader() {
         </div>
       </CardHeader>
       <CardContent className="p-6">
-        <form action={formAction} className="space-y-6">
+        <form 
+          action={(formData) => {
+            if (file) {
+              formData.set('csv', file);
+            }
+            formAction(formData);
+          }} 
+          className="space-y-6"
+        >
           <div className="space-y-2">
             {!file ? (
               <label
@@ -116,7 +124,7 @@ export default function CsvUploader() {
                 </div>
                 <input
                   id="csv-upload"
-                  name="csv"
+                  name="csv-input" // Use a different name to avoid conflict
                   type="file"
                   className="hidden"
                   accept=".csv"
