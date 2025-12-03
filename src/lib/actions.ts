@@ -35,18 +35,38 @@ export async function detectProductFromImage(prevState: any, formData: FormData)
   }
 }
 
-function generateMockPrices(productName: string): PriceResult[] {
+function generateMockPrices(productName: string): Omit<PriceResult, 'image'>[] {
   const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
-  const results: PriceResult[] = [];
+  const results: Omit<PriceResult, 'image'>[] = [];
   // Use a hash of the product name to generate a more consistent base price
   const nameHash = productName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
   const basePrice = (Math.abs(nameHash) % 30000) + 5000; // Prices between ₹5000 and ₹35000
 
-  stores.forEach((store, index) => {
-    // Each store has a slightly different pricing strategy
-    const storeMultiplier = 1 + (index - 2) * 0.05; // -10% to +10% variation
-    const randomFactor = (Math.random() - 0.5) * 0.1; // +/- 5% random jitter
-    const price = parseFloat((basePrice * (storeMultiplier + randomFactor) / 100).toFixed(2));
+  stores.forEach((store) => {
+    // Each store has a slightly different pricing strategy.
+    // Making this more random and less predictable.
+    let storeMultiplier: number;
+    switch(store) {
+      case 'Amazon':
+        storeMultiplier = 0.95 + (Math.random() * 0.1); // -5% to +5%
+        break;
+      case 'Walmart':
+        storeMultiplier = 0.92 + (Math.random() * 0.1); // -8% to +2% (often cheaper)
+        break;
+      case 'eBay':
+        storeMultiplier = 0.98 + (Math.random() * 0.15); // Wider range for marketplace
+        break;
+      case 'Best Buy':
+        storeMultiplier = 1.0 + (Math.random() * 0.1); // MSRP or slightly higher
+        break;
+      case 'Target':
+        storeMultiplier = 0.97 + (Math.random() * 0.12); // Competitive pricing
+        break;
+      default:
+        storeMultiplier = 1.0;
+    }
+
+    const price = parseFloat((basePrice * storeMultiplier / 100).toFixed(2));
     
     let url = '';
     const encodedProductName = encodeURIComponent(productName);
