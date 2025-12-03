@@ -40,21 +40,42 @@ function generateMockPrices(productName: string): PriceResult[] {
   const results: PriceResult[] = [];
   // Use a hash of the product name to generate a more consistent base price
   const nameHash = productName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-  const basePrice = (Math.abs(nameHash) % 30000) + 5000; // Prices between ₹50 and ₹350
+  const basePrice = (Math.abs(nameHash) % 30000) + 5000; // Prices between ₹5000 and ₹35000
 
   stores.forEach((store, index) => {
     // Each store has a slightly different pricing strategy
     const storeMultiplier = 1 + (index - 2) * 0.05; // -10% to +10% variation
     const randomFactor = (Math.random() - 0.5) * 0.1; // +/- 5% random jitter
-    const price = parseFloat((basePrice * (storeMultiplier + randomFactor)).toFixed(2));
-    const imageIndex = Math.floor(Math.random() * PlaceHolderImages.length);
+    const price = parseFloat((basePrice * (storeMultiplier + randomFactor) / 100).toFixed(2));
+    
+    let url = '';
+    const encodedProductName = encodeURIComponent(productName);
+    switch (store) {
+      case 'Amazon':
+        url = `https://www.amazon.in/s?k=${encodedProductName}`;
+        break;
+      case 'eBay':
+        url = `https://www.ebay.in/sch/i.html?_nkw=${encodedProductName}`;
+        break;
+      case 'Walmart':
+        url = `https://www.walmart.com/search?q=${encodedProductName}`;
+        break;
+      case 'Best Buy':
+        url = `https://www.bestbuy.com/site/searchpage.jsp?st=${encodedProductName}`;
+        break;
+      case 'Target':
+        url = `https://www.target.com/s?searchTerm=${encodedProductName}`;
+        break;
+      default:
+        url = `https://www.google.com/search?q=${encodedProductName}+${encodeURIComponent(store)}`;
+    }
 
     results.push({
       store,
-      title: `${productName} - ${store} Deal`,
+      title: `${productName}`,
       price,
-      url: `https://example.com/${store.toLowerCase().replace(' ','-')}/${productName.replace(/\s/g, '-')}`,
-      image: PlaceHolderImages[imageIndex]?.imageUrl || '',
+      url,
+      image: '',
     });
   });
 
