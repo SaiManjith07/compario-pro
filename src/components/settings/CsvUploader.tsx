@@ -2,17 +2,17 @@
 
 import { useState, useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import { UploadCloud, X, Loader2, Table, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { processCsv } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useSearchHistory } from '@/hooks/use-search-history';
 
 const initialState = {
-  status: 'idle',
+  status: 'idle' as 'idle' | 'success' | 'error',
   message: '',
-  results: [],
+  results: [] as any[],
 };
 
 function SubmitButton() {
@@ -37,7 +37,7 @@ function SubmitButton() {
 export default function CsvUploader() {
   const [state, formAction] = useActionState(processCsv, initialState);
   const { toast } = useToast();
-  const router = useRouter();
+  const { addHistoryEntry } = useSearchHistory();
 
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -48,7 +48,15 @@ export default function CsvUploader() {
         title: 'CSV Processed!',
         description: `Compared prices for ${state.results.length} products.`,
       });
-      // Potentially redirect or display results
+      state.results.forEach(result => {
+        if (result.bestPrice) {
+          addHistoryEntry({
+            productName: result.productName,
+            bestPrice: result.bestPrice.price,
+            store: result.bestPrice.store,
+          });
+        }
+      });
     } else if (state.status === 'error') {
       toast({
         variant: 'destructive',
@@ -56,7 +64,7 @@ export default function CsvUploader() {
         description: state.message,
       });
     }
-  }, [state, router, toast]);
+  }, [state, toast, addHistoryEntry]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];

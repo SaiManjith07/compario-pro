@@ -116,7 +116,7 @@ export async function processCsv(prevState: any, formData: FormData) {
     const csvFile = formData.get('csv') as File;
 
     if (!csvFile || csvFile.size === 0) {
-        return { status: 'error', message: 'Please select a CSV file.' };
+        return { status: 'error', message: 'Please select a CSV file.', results: [] };
     }
 
     try {
@@ -129,10 +129,11 @@ export async function processCsv(prevState: any, formData: FormData) {
         return {
             status: 'success',
             results: comparisonResults,
+            message: '',
         };
 
     } catch (error: any) {
         console.error('Error in processCsv:', error);
-        return { status: 'error', message: error.message || 'Failed to process CSV file.' };
+        return { status: 'error', message: error.message || 'Failed to process CSV file.', results: [] };
     }
 }
