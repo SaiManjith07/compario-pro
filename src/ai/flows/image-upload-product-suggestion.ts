@@ -55,9 +55,14 @@ const productIdentificationPrompt = ai.definePrompt({
       labels: z.array(z.string()).describe('Labels extracted from the image.'),
     }),
   },
-  prompt: `You are an expert at identifying products from images. Analyze the following image to identify the main product. Pay close attention to any visible text, logos, or distinct branding on the product itself. Your goal is to determine both the product type and its brand name. For example, if you see a phone with an Apple logo, the product name should be something like "Apple iPhone".
+  prompt: `You are a highly precise product identification engine. Your sole purpose is to analyze an image and extract the exact product name, brand, and model from it.
 
-Based on the attached image, identify the main product shown. Your response should include its brand name and model if visible. Provide a concise product name (e.g., "Apple iPhone 15 Pro") and up to 3 relevant labels that describe the product category.
+CRITICAL INSTRUCTIONS:
+1.  **Prioritize Visible Information:** Base your identification strictly on any visible text, logos, or branding on the product in the image.
+2.  **Do Not Hallucinate:** If you cannot clearly identify a brand or model from the image, state that. Do not guess or suggest similar-sounding brands.
+3.  **Be Specific:** Provide the most specific name possible. For example, instead of "headphones," identify it as "Sony WH-1000XM5 Headphones" if that information is visible.
+
+Analyze the attached image and return the product name.
 
 Image: {{media url=photoDataUri}}`,
 });
