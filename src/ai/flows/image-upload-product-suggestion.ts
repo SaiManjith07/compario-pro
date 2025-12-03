@@ -51,11 +51,11 @@ const productIdentificationPrompt = ai.definePrompt({
   },
   output: {
     schema: z.object({
-      productName: z.string().describe('The detected product name.'),
+      productName: z.string().describe('The detected product name, including its brand.'),
       labels: z.array(z.string()).describe('Labels extracted from the image.'),
     }),
   },
-  prompt: `Based on the attached image, identify the main product shown. Provide a concise product name and up to 3 relevant labels.
+  prompt: `Based on the attached image, identify the main product shown, including its brand if possible. Provide a concise product name (e.g., "Apple iPhone 15 Pro") and up to 3 relevant labels.
 
   Image: {{media url=photoDataUri}}`,
 });

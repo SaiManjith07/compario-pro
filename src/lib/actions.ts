@@ -36,7 +36,7 @@ export async function detectProductFromImage(prevState: any, formData: FormData)
 }
 
 function generateMockPrices(productName: string): PriceResult[] {
-  const stores = ['Amazon', 'eBay'];
+  const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
   const results: PriceResult[] = [];
   const basePrice = 500 + Math.random() * 500;
 
@@ -53,7 +53,7 @@ function generateMockPrices(productName: string): PriceResult[] {
       store,
       title: `${productName} - ${store} Special Edition`,
       price,
-      url: `https://example.com/${store.toLowerCase()}/${productName.replace(/\s/g, '-')}`,
+      url: `https://example.com/${store.toLowerCase().replace(' ','-')}/${productName.replace(/\s/g, '-')}`,
       image: PlaceHolderImages[imageIndex].imageUrl,
     });
   });
