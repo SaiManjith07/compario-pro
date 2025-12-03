@@ -24,8 +24,16 @@ export default function CompareClient({
   const [isPending, startTransition] = useTransition();
   const { addHistoryEntry } = useSearchHistory();
   const router = useRouter();
-  
+  const searchParams = useSearchParams();
+
+  // Effect to update state when initialData from server changes
   useEffect(() => {
+    // Check if the search param from the URL matches the current search term
+    const q = searchParams.get('q');
+    if (q && q !== searchTerm) {
+      setSearchTerm(q);
+    }
+
     if (initialData) {
       setData(initialData);
       if (initialData.bestPrice) {
@@ -36,14 +44,16 @@ export default function CompareClient({
         });
       }
     }
-  }, [initialData, addHistoryEntry]);
+  }, [initialData, searchParams, addHistoryEntry, searchTerm]);
   
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!searchTerm) return;
 
+    // Update the URL, which will trigger a re-render with new server-fetched data
     router.push(`/compare?q=${encodeURIComponent(searchTerm)}`);
 
+    // We can also optimistically fetch on the client, but the primary mechanism is server-side
     startTransition(async () => {
       const result = await searchPrices(searchTerm);
       setData(result);
@@ -118,14 +128,14 @@ export default function CompareClient({
         </div>
       )}
       
-      {!isPending && !data && searchTerm && (
-        <Alert>
-          <Search className="h-4 w-4" />
-          <AlertTitle>No Data</AlertTitle>
-          <AlertDescription>
-            Start a search to see price comparisons.
-          </AlertDescription>
-        </Alert>
+      {!isPending && !data && initialSearchTerm && (
+         <Alert>
+           <Search className="h-4 w-4" />
+           <AlertTitle>No Data</AlertTitle>
+           <AlertDescription>
+             Start a search to see price comparisons.
+           </AlertDescription>
+         </Alert>
       )}
 
     </div>

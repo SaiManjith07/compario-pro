@@ -20,7 +20,9 @@ function CompareFallback() {
   );
 }
 
+// This component fetches data on the server based on the search param
 async function CompareData({ productName }: { productName: string }) {
+  // We only fetch initial data if a product name is present
   const initialData = productName ? await searchPrices(productName) : null;
   return (
     <CompareClient
@@ -30,6 +32,7 @@ async function CompareData({ productName }: { productName: string }) {
   );
 }
 
+// The page now correctly receives searchParams and passes the query down
 export default function ComparePage({
   searchParams,
 }: {
@@ -43,6 +46,7 @@ export default function ComparePage({
         title="Compare Prices"
         description="Search for a product by name to see prices from different stores."
       />
+      {/* Suspense is key for streaming the server-rendered result */}
       <Suspense fallback={<CompareFallback />}>
         <CompareData productName={productName} />
       </Suspense>
