@@ -3,7 +3,7 @@
 import { useState, useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { UploadCloud, X, Loader2, Table } from 'lucide-react';
+import { UploadCloud, X, Loader2, Table, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { processCsv } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
@@ -76,10 +76,20 @@ export default function CsvUploader() {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Bulk Upload</CardTitle>
-        <CardDescription>
-          Upload a CSV file of products to compare prices in bulk. The CSV should have a header row with a 'ProductName' column.
-        </CardDescription>
+        <div className="flex justify-between items-start">
+            <div>
+                <CardTitle>Bulk Upload</CardTitle>
+                <CardDescription>
+                Upload a CSV file of products to compare prices in bulk. The CSV should have a header row with a 'ProductName' column.
+                </CardDescription>
+            </div>
+            <Button variant="outline" asChild>
+                <a href="/products.csv" download>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Sample
+                </a>
+            </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-6">
         <form action={formAction} className="space-y-6">

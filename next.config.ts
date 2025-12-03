@@ -30,6 +30,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/products.csv',
+        headers: [
+          {
+            key: 'Content-Disposition',
+            value: 'attachment; filename="products.csv"',
+          },
+          {
+            key: 'Content-Type',
+            value: 'text/csv',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
