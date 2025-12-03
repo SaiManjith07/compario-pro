@@ -75,7 +75,6 @@ function generateMockPrices(productName: string): PriceResult[] {
       title: `${productName}`,
       price,
       url,
-      image: '',
     });
   });
 
