@@ -12,8 +12,31 @@ interface PriceCardProps {
   isBestPrice: boolean;
 }
 
+const storeLogos: { [key: string]: { src: string; width: number; height: number } } = {
+  Amazon: { src: 'https://logo.clearbit.com/amazon.com', width: 64, height: 32 },
+  eBay: { src: 'https://logo.clearbit.com/ebay.com', width: 64, height: 32 },
+  Walmart: { src: 'https://logo.clearbit.com/walmart.com', width: 64, height: 32 },
+  'Best Buy': { src: 'https://logo.clearbit.com/bestbuy.com', width: 64, height: 32 },
+  Target: { src: 'https://logo.clearbit.com/target.com', width: 64, height: 32 },
+};
+
+
 export function PriceCard({ result, isBestPrice }: PriceCardProps) {
   const StoreLogo = () => {
+    const logo = storeLogos[result.store];
+    if (logo) {
+      return (
+        <div className="flex items-center gap-2">
+          <Image
+            src={logo.src}
+            alt={`${result.store} logo`}
+            width={logo.width}
+            height={logo.height}
+            className="h-8 w-auto object-contain"
+          />
+        </div>
+      );
+    }
     return (
       <div className="flex items-center justify-center h-8 w-16 rounded-md bg-muted text-muted-foreground text-sm font-bold">
         {result.store}
