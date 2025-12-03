@@ -22,7 +22,7 @@ const storeLogos: { [key: string]: { src: string; width: number; height: number 
 
 
 export function PriceCard({ result, isBestPrice }: PriceCardProps) {
-  const StoreLogo = () => {
+  const StoreDisplay = () => {
     const logo = storeLogos[result.store];
     if (logo) {
       return (
@@ -34,11 +34,12 @@ export function PriceCard({ result, isBestPrice }: PriceCardProps) {
             height={logo.height}
             className="h-8 w-auto object-contain"
           />
+          <span className="font-semibold text-foreground">{result.store}</span>
         </div>
       );
     }
     return (
-      <div className="flex items-center justify-center h-8 w-16 rounded-md bg-muted text-muted-foreground text-sm font-bold">
+      <div className="flex items-center justify-center h-8 rounded-md text-sm font-bold">
         {result.store}
       </div>
     );
@@ -50,7 +51,7 @@ export function PriceCard({ result, isBestPrice }: PriceCardProps) {
         {isBestPrice && (
           <Badge className="absolute top-2 right-2">Best Price</Badge>
         )}
-        <StoreLogo />
+        <StoreDisplay />
       </CardHeader>
       <CardContent className="flex-grow space-y-2">
         <p className="font-semibold text-foreground line-clamp-2 h-[40px]">{result.title}</p>
