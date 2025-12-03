@@ -19,7 +19,7 @@ const ImageUploadProductSuggestionInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      'A photo of a product, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected typo here
+      "A photo of a product, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type ImageUploadProductSuggestionInput = z.infer<
@@ -44,6 +44,23 @@ export async function imageUploadProductSuggestion(
   return imageUploadProductSuggestionFlow(input);
 }
 
+const productIdentificationPrompt = ai.definePrompt({
+  name: 'productIdentificationPrompt',
+  input: {
+    schema: ImageUploadProductSuggestionInputSchema,
+  },
+  output: {
+    schema: z.object({
+      productName: z.string().describe('The detected product name.'),
+      labels: z.array(z.string()).describe('Labels extracted from the image.'),
+    }),
+  },
+  prompt: `Based on the attached image, identify the main product shown. Provide a concise product name and up to 3 relevant labels.
+
+  Image: {{media url=photoDataUri}}`,
+});
+
+
 const productSuggestionPrompt = ai.definePrompt({
   name: 'productSuggestionPrompt',
   input: {
@@ -59,7 +76,7 @@ const productSuggestionPrompt = ai.definePrompt({
         .describe('Suggested similar product names.'),
     }),
   },
-  prompt: `Given the product name "{{productName}}" and labels "{{labels}}", suggest 3 similar product names. Return them as a JSON array.`, // Updated prompt instructions and format
+  prompt: `Given the product name "{{productName}}" and labels "{{labels}}", suggest 3 similar product names. Return them as a JSON array.`,
 });
 
 const imageUploadProductSuggestionFlow = ai.defineFlow(
@@ -69,12 +86,15 @@ const imageUploadProductSuggestionFlow = ai.defineFlow(
     outputSchema: ImageUploadProductSuggestionOutputSchema,
   },
   async input => {
-    // Call Google Vision API to extract labels + best matching product name
-    const visionApiResult = await callGoogleVisionAPI(input.photoDataUri);
+    // Call Genkit Vision prompt to extract labels + best matching product name
+    const { output: visionApiResult } = await productIdentificationPrompt(input);
 
-    // Extract labels and product name from Google Vision API result
-    const productName = visionApiResult.productName;
-    const labels = visionApiResult.labels;
+    if (!visionApiResult) {
+        throw new Error("Could not identify product from image.");
+    }
+    
+    // Extract labels and product name from the result
+    const { productName, labels } = visionApiResult;
 
     // Call the product suggestion prompt to get similar product names
     const {output} = await productSuggestionPrompt({
@@ -82,23 +102,15 @@ const imageUploadProductSuggestionFlow = ai.defineFlow(
       labels: labels,
     });
 
+    if (!output) {
+        throw new Error("Could not generate product suggestions.");
+    }
+
     // Return the combined result
     return {
       productName: productName,
       labels: labels,
-      suggestedProductNames: output!.suggestedProductNames,
+      suggestedProductNames: output.suggestedProductNames,
     };
   }
 );
-
-// Dummy implementation for Google Vision API call
-async function callGoogleVisionAPI(photoDataUri: string): Promise<{
-  productName: string;
-  labels: string[];
-}> {
-  // Simulate Google Vision API response
-  return {
-    productName: 'iPhone 13',
-    labels: ['phone', 'electronics', 'iphone'],
-  };
-}
