@@ -19,7 +19,7 @@ const PriceComparisonSummaryInputSchema = z.object({
       title: z.string().describe('The title of the product in the store.'),
       price: z.number().describe('The price of the product in the store.'),
       url: z.string().url().describe('The URL of the product page in the store.'),
-      image: z.string().url().describe('The URL of the product image in the store.'),
+      image: z.string().url().describe('The URL of the product image in the store.').optional(),
     })
   ).describe('An array of price comparison results from different stores.'),
 });
@@ -46,7 +46,7 @@ const prompt = ai.definePrompt({
 
   Price Comparison Results:
   {{#each results}}
-  - Store: {{store}}, Title: {{title}}, Price: {{price}}, URL: {{url}}, Image: {{image}}
+  - Store: {{store}}, Title: {{title}}, Price: {{price}}, URL: {{url}}
   {{/each}}
 
   Summary:`, // Keep it simple and concise

@@ -3,7 +3,7 @@ export type PriceResult = {
   title: string;
   price: number;
   url: string;
-  image: string;
+  image?: string;
 };
 
 export type ComparisonData = {
