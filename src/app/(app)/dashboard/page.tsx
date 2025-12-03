@@ -2,12 +2,14 @@
 
 import { useSearchHistory } from '@/hooks/use-search-history';
 import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, BarChart, GitCompareArrows, History, UploadCloud } from 'lucide-react';
+import { ArrowRight, BarChart as BarChartIcon, GitCompareArrows, History, UploadCloud } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 export default function DashboardPage() {
   const { history, isLoaded } = useSearchHistory();
@@ -28,6 +30,18 @@ export default function DashboardPage() {
       </CardContent>
     </Card>
   );
+  
+  const chartConfig = {
+    bestPrice: {
+      label: 'Best Price (₹)',
+      color: 'hsl(var(--primary))',
+    },
+  };
+  
+  const chartData = history.slice(0, 5).reverse().map(item => ({
+    name: item.productName,
+    bestPrice: item.bestPrice
+  }));
 
   return (
     <div className="flex flex-col gap-8">
@@ -80,13 +94,13 @@ export default function DashboardPage() {
           <StatCard
             title="Best Price Found"
             value={latestSearch ? `₹${latestSearch.bestPrice.toFixed(2)}` : 'N/A'}
-            icon={BarChart}
+            icon={BarChartIcon}
             isLoading={!isLoaded}
           />
           <StatCard
             title="Cheapest Store"
             value={latestSearch?.store || 'N/A'}
-            icon={BarChart}
+            icon={BarChartIcon}
             isLoading={!isLoaded}
           />
           <StatCard
@@ -132,9 +146,34 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Search Trends</CardTitle>
+            <CardDescription>Best prices found in your last 5 searches.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center h-full min-h-[150px]">
-            <p className="text-muted-foreground text-center">Chart visualization will be available in a future update.</p>
+          <CardContent>
+            {isLoaded && history.length > 0 ? (
+              <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                <BarChart accessibilityLayer data={chartData}>
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 10) + (value.length > 10 ? '...' : '')}
+                  />
+                   <YAxis
+                        tickFormatter={(value) => `₹${value}`}
+                        width={80}
+                      />
+                  <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                  <Bar dataKey="bestPrice" fill="var(--color-bestPrice)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+                <div className="flex items-center justify-center h-full min-h-[150px]">
+                    <p className="text-muted-foreground text-center">
+                        {isLoaded ? "No search data available for trend analysis." : "Loading chart..."}
+                    </p>
+                </div>
+            )}
           </CardContent>
         </Card>
       </div>

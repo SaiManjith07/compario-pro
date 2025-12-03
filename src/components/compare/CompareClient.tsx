@@ -11,6 +11,8 @@ import { Search, Loader2 } from 'lucide-react';
 import { PriceCard } from './PriceCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 export default function CompareClient({
   initialData,
@@ -67,6 +69,13 @@ export default function CompareClient({
     });
   };
 
+  const chartConfig = {
+    price: {
+      label: 'Price (₹)',
+      color: 'hsl(var(--primary))',
+    },
+  };
+
   return (
     <div className="space-y-8">
       <form onSubmit={handleSearch} className="flex gap-2">
@@ -107,15 +116,45 @@ export default function CompareClient({
           </Card>
 
           {data.results.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.results.map((result, index) => (
-                <PriceCard
-                  key={`${result.store}-${index}`}
-                  result={result}
-                  isBestPrice={result === data.bestPrice}
-                />
-              ))}
-            </div>
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Price Comparison Chart</CardTitle>
+                  <CardDescription>
+                    A visual breakdown of prices for &quot;{data.productName}&quot; across different stores.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                    <BarChart accessibilityLayer data={data.results}>
+                      <XAxis
+                        dataKey="store"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickFormatter={(value) => value.slice(0, 10)}
+                      />
+                      <YAxis
+                        tickFormatter={(value) => `₹${value}`}
+                        width={80}
+                      />
+                      <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                      <Bar dataKey="price" fill="var(--color-price)" radius={4} />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.results.map((result, index) => (
+                  <PriceCard
+                    key={`${result.store}-${index}`}
+                    result={result}
+                    isBestPrice={result === data.bestPrice}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             <Alert>
               <Search className="h-4 w-4" />
