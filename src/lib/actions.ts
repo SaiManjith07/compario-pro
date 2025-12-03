@@ -2,7 +2,7 @@
 
 import { imageUploadProductSuggestion } from '@/ai/flows/image-upload-product-suggestion';
 import { getPriceComparisonSummary } from '@/ai/flows/price-comparison-summary';
-import type { ComparisonData, PriceResult } from '@/lib/types';
+import type { ComparisonData, PriceResult, SearchHistoryEntry } from '@/lib/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 async function fileToDataURI(file: File): Promise<string> {
@@ -95,19 +95,21 @@ export async function searchPrices(productName: string): Promise<ComparisonData>
 
 async function parseCsv(file: File): Promise<string[]> {
     const text = await file.text();
-    const lines = text.split('\n').filter(line => line.trim() !== '');
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
     if (lines.length < 2) return [];
 
-    const header = lines[0].split(',').map(h => h.trim());
-    const productIndex = header.findIndex(h => h.toLowerCase() === 'productname');
+    const headerLine = lines[0].toLowerCase();
+    const headers = headerLine.split(',').map(h => h.replace(/"/g, '').trim());
+    const productIndex = headers.indexOf('productname');
 
     if (productIndex === -1) {
         throw new Error("CSV must have a 'ProductName' column.");
     }
 
     return lines.slice(1).map(line => {
+        // This is a simple parser, for more complex CSVs a library would be better
         const columns = line.split(',');
-        return columns[productIndex]?.trim();
+        return columns[productIndex]?.replace(/"/g, '').trim();
     }).filter(Boolean);
 }
 
@@ -121,6 +123,10 @@ export async function processCsv(prevState: any, formData: FormData) {
 
     try {
         const productNames = await parseCsv(csvFile);
+        
+        if (productNames.length === 0) {
+            return { status: 'error', message: 'No products found in the CSV file.', results: [] };
+        }
         
         const comparisonResults = await Promise.all(
             productNames.map(name => searchPrices(name))

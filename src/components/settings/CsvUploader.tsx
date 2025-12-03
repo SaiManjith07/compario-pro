@@ -100,7 +100,7 @@ export default function CsvUploader() {
         </div>
       </CardHeader>
       <CardContent className="p-6">
-        <form action={formAction} className="space-y-6">
+        <form action={formAction} encType="multipart/form-data" className="space-y-6">
           <div className="space-y-2">
             {!file ? (
               <label
