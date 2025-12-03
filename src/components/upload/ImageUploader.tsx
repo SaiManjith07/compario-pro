@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useActionState } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UploadCloud, X, Loader2, Wand2 } from 'lucide-react';
@@ -10,57 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-const initialState = {
-  status: 'idle' as 'idle' | 'success' | 'error',
-  message: '',
-  productName: null,
-  suggestedNames: [],
-  labels: [],
-};
-
-function SubmitButton() {
-  const { pending } = useActionState();
-  return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Detecting...
-        </>
-      ) : (
-        <>
-          <Wand2 className="mr-2 h-4 w-4" />
-          Detect Product
-        </>
-      )}
-    </Button>
-  );
-}
-
 export function ImageUploader() {
-  const [state, formAction] = useActionState(detectProductFromImage, initialState);
   const { toast } = useToast();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    if (state.status === 'success' && state.productName) {
-      toast({
-        title: 'Product Detected!',
-        description: `We found a "${state.productName}". Now finding prices...`,
-      });
-      router.push(`/compare?q=${encodeURIComponent(state.productName)}`);
-    } else if (state.status === 'error') {
-      toast({
-        variant: 'destructive',
-        title: 'An error occurred',
-        description: state.message,
-      });
-    }
-  }, [state, router, toast]);
 
   const processFile = (selectedFile: File) => {
     setFile(selectedFile);
@@ -109,18 +66,36 @@ export function ImageUploader() {
     if (fileInput) fileInput.value = '';
   };
   
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    startTransition(async () => {
+      const result = await detectProductFromImage(null, formData);
+
+      if (result.status === 'success' && result.productName) {
+        toast({
+          title: 'Product Detected!',
+          description: `We found a "${result.productName}". Now finding prices...`,
+        });
+        router.push(`/compare?q=${encodeURIComponent(result.productName)}`);
+      } else if (result.status === 'error') {
+        toast({
+          variant: 'destructive',
+          title: 'An error occurred',
+          description: result.message,
+        });
+      }
+    });
+  }
+
   return (
     <Card className="max-w-2xl mx-auto">
       <CardContent className="p-6">
-        <form 
-          action={(formData) => {
-            if (file) {
-              formData.set('image', file);
-            }
-            formAction(formData);
-          }} 
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             {!imagePreview ? (
               <label
@@ -143,7 +118,7 @@ export function ImageUploader() {
                 </div>
                 <input
                   id="image-upload"
-                  name="image-input" // Use different name to avoid conflict
+                  name="image-input"
                   type="file"
                   className="hidden"
                   accept="image/png, image/jpeg, image/webp"
@@ -164,7 +139,21 @@ export function ImageUploader() {
               </div>
             )}
           </div>
-          {file && <SubmitButton />}
+          {file && (
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Detecting...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Detect Product
+                </>
+              )}
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>
