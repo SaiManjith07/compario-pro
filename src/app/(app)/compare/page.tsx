@@ -33,9 +33,9 @@ async function CompareData({ productName }: { productName: string }) {
 export default function ComparePage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams?: { q?: string };
 }) {
-  const productName = searchParams.q || '';
+  const productName = searchParams?.q || '';
 
   return (
     <div className="space-y-8">
