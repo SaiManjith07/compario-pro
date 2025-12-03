@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ArrowRight, BarChart as BarChartIcon, GitCompareArrows, History, UploadCloud } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Line, LineChart } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 export default function DashboardPage() {
@@ -151,7 +151,7 @@ export default function DashboardPage() {
           <CardContent>
             {isLoaded && history.length > 0 ? (
               <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                <BarChart accessibilityLayer data={chartData}>
+                <LineChart accessibilityLayer data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
                   <XAxis
                     dataKey="name"
                     tickLine={false}
@@ -164,8 +164,11 @@ export default function DashboardPage() {
                         width={80}
                       />
                   <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                  <Bar dataKey="bestPrice" fill="var(--color-bestPrice)" radius={4} />
-                </BarChart>
+                  <Line type="monotone" dataKey="bestPrice" stroke="var(--color-bestPrice)" strokeWidth={2} dot={{
+                    fill: "var(--color-bestPrice)",
+                    r: 4
+                  }} />
+                </LineChart>
               </ChartContainer>
             ) : (
                 <div className="flex items-center justify-center h-full min-h-[150px]">

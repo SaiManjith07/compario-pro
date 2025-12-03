@@ -11,7 +11,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { PriceCard } from './PriceCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 export default function CompareClient({
@@ -126,7 +126,8 @@ export default function CompareClient({
                 </CardHeader>
                 <CardContent>
                   <ChartContainer config={chartConfig} className="h-[250px] w-full">
-                    <BarChart accessibilityLayer data={data.results}>
+                    <AreaChart accessibilityLayer data={data.results} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
+                       <CartesianGrid vertical={false} />
                       <XAxis
                         dataKey="store"
                         tickLine={false}
@@ -139,8 +140,8 @@ export default function CompareClient({
                         width={80}
                       />
                       <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                      <Bar dataKey="price" fill="var(--color-price)" radius={4} />
-                    </BarChart>
+                      <Area dataKey="price" type="monotone" fill="var(--color-price)" fillOpacity={0.4} stroke="var(--color-price)" />
+                    </AreaChart>
                   </ChartContainer>
                 </CardContent>
               </Card>
