@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UploadCloud, X, Loader2, Wand2 } from 'lucide-react';
@@ -40,7 +40,7 @@ function SubmitButton() {
 }
 
 export function ImageUploader() {
-  const [state, formAction] = useFormState(detectProductFromImage, initialState);
+  const [state, formAction] = useActionState(detectProductFromImage, initialState);
   const { toast } = useToast();
   const router = useRouter();
 
