@@ -10,9 +10,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { useUser } from '@/firebase';
 
 export default function DashboardPage() {
   const { history, isLoaded } = useSearchHistory();
+  const { user } = useUser();
   const latestSearch = history[0];
 
   const StatCard = ({ title, value, icon: Icon, isLoading }: { title: string; value: string | number; icon: React.ElementType; isLoading: boolean }) => (
@@ -46,8 +48,8 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Dashboard"
-        description="Welcome back! Here's a summary of your recent activity."
+        title={`Welcome back, ${user?.displayName?.split(' ')[0] || 'User'}!`}
+        description="Here's a summary of your recent activity."
       />
 
       <section>
