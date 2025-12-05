@@ -61,6 +61,7 @@ export function SignIn() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const signInForm = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -73,15 +74,18 @@ export function SignIn() {
   });
 
   useEffect(() => {
-    if (user) {
+    if (!isUserLoading && user) {
       router.replace('/dashboard');
     }
-  }, [user, router]);
+  }, [user, isUserLoading, router]);
 
   const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithRedirect(auth, provider);
+      // The user will be redirected. The onAuthStateChanged listener will handle the result
+      // when they are redirected back to the app. We don't need to do anything else here.
     } catch (error) {
       console.error('Error signing in with Google:', error);
       toast({
@@ -89,6 +93,7 @@ export function SignIn() {
         title: 'Google Sign-In Failed',
         description: 'An unexpected error occurred. Please try again.',
       });
+      setIsGoogleLoading(false);
     }
   };
 
@@ -141,15 +146,17 @@ export function SignIn() {
     }
   };
 
-  if (isUserLoading || user) {
+  // If we are loading the user state, or if the user is already logged in (and will be redirected), show a loader.
+  // Also show a loader if a Google sign-in is in progress.
+  if (isUserLoading || user || isGoogleLoading) {
     return (
       <div className="flex justify-center items-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-
-  const isLoading = isSubmitting || isUserLoading;
+  
+  const isLoadingForms = isSubmitting || isUserLoading;
 
   return (
     <Card className="w-full">
@@ -181,7 +188,7 @@ export function SignIn() {
                         <Input
                           placeholder="you@example.com"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isLoadingForms}
                         />
                       </FormControl>
                       <FormMessage />
@@ -199,14 +206,14 @@ export function SignIn() {
                           type="password"
                           placeholder="••••••••"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isLoadingForms}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoadingForms}>
                   {isSubmitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -231,7 +238,7 @@ export function SignIn() {
                         <Input
                           placeholder="John Doe"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isLoadingForms}
                         />
                       </FormControl>
                       <FormMessage />
@@ -248,7 +255,7 @@ export function SignIn() {
                         <Input
                           placeholder="you@example.com"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isLoadingForms}
                         />
                       </FormControl>
                       <FormMessage />
@@ -266,14 +273,14 @@ export function SignIn() {
                           type="password"
                           placeholder="••••••••"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isLoadingForms}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoadingForms}>
                   {isSubmitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -297,7 +304,7 @@ export function SignIn() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleSignIn}
-          disabled={isLoading}
+          disabled={isLoadingForms || isGoogleLoading}
         >
           <svg
             className="mr-2 h-4 w-4"
