@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UploadCloud, X, Loader2, Wand2 } from 'lucide-react';
@@ -93,15 +93,15 @@ export function ImageUploader() {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
+    <Card className="h-full">
+      <CardContent className="p-6 h-full flex flex-col">
+        <form onSubmit={handleSubmit} className="space-y-6 flex-grow flex flex-col">
+          <div className="space-y-2 flex-grow">
             {!imagePreview ? (
               <label
                 htmlFor="image-upload"
                 className={cn(
-                  "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-secondary transition-colors",
+                  "relative flex flex-col items-center justify-center w-full h-full min-h-[250px] border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-secondary transition-colors",
                   isDragging && "border-primary bg-secondary"
                 )}
                 onDragEnter={handleDragEnter}
@@ -126,13 +126,14 @@ export function ImageUploader() {
                 />
               </label>
             ) : (
-              <div className="relative w-full h-64 rounded-lg overflow-hidden border">
+              <div className="relative w-full h-full min-h-[250px] rounded-lg overflow-hidden border">
                 <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="contain" />
                 <Button
                   variant="destructive"
                   size="icon"
                   className="absolute top-2 right-2 h-8 w-8"
                   onClick={handleRemoveImage}
+                  type="button"
                 >
                   <X className="h-4 w-4" />
                 </Button>
