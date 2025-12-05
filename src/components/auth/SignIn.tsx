@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -78,7 +79,7 @@ export function SignIn() {
   useEffect(() => {
     if (!isUserLoading && user) {
       const redirectTo = searchParams.get('redirect_to') || '/dashboard';
-      router.replace(redirectTo);
+      router.push(redirectTo);
     }
   }, [user, isUserLoading, router, searchParams]);
 
