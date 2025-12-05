@@ -2,8 +2,7 @@
 
 import {
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
@@ -74,42 +73,6 @@ export function SignIn() {
     defaultValues: { name: '', email: '', password: '' },
   });
 
-  // Effect to check for redirect result from Google Sign-In
-  useEffect(() => {
-    // isUserLoading is the key here. It's true on initial load.
-    // When getRedirectResult is called, it might trigger onAuthStateChanged,
-    // setting isUserLoading to false and providing a user.
-    // We also set isGoogleLoading to true before redirecting, so we can check that.
-    const checkRedirectResult = async () => {
-      try {
-        // By setting isGoogleLoading, we can show a specific loader for the redirect
-        setIsGoogleLoading(true); 
-        const result = await getRedirectResult(auth);
-        // If result is not null, a sign-in just completed.
-        // The `onAuthStateChanged` listener in our `FirebaseProvider` will handle
-        // the user state update, and the `ProtectedApp` component will redirect.
-        if (result) {
-          // You can add a toast here if you want
-          // toast({ title: 'Signed in successfully!' });
-        }
-      } catch (error: any) {
-        console.error('Error during Google sign-in redirect:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Google Sign-In Failed',
-          description: error.message || 'Could not complete sign-in. Please try again.',
-        });
-      } finally {
-        // This is important: stop the loading indicator regardless of outcome
-        setIsGoogleLoading(false);
-      }
-    };
-
-    // We only want to run this check once on initial load.
-    checkRedirectResult();
-  }, [auth, toast]);
-
-
   useEffect(() => {
     // This effect handles redirecting the user AFTER they have logged in.
     if (!isUserLoading && user) {
@@ -121,9 +84,21 @@ export function SignIn() {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    // We don't await here because signInWithRedirect navigates away.
-    // The result is handled by the useEffect hook on the next page load.
-    await signInWithRedirect(auth, provider);
+    try {
+      await signInWithPopup(auth, provider);
+      // The onAuthStateChanged listener in ProtectedApp will handle the redirect
+    } catch (error: any) {
+      console.error('Error during Google sign-in:', error);
+       toast({
+        variant: 'destructive',
+        title: 'Google Sign-In Failed',
+        description: error.code === 'auth/operation-not-allowed'
+          ? 'Google Sign-In is not enabled for this app. Please contact support.'
+          : error.message || 'Could not complete sign-in. Please try again.',
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   const handleEmailSignIn = async (values: z.infer<typeof signInSchema>) => {
@@ -175,8 +150,8 @@ export function SignIn() {
     }
   };
 
-  // Show a loader if Firebase is checking auth state, or a Google sign-in is in progress.
-  if (isUserLoading || isGoogleLoading) {
+  // Show a loader if Firebase is checking auth state. Let ProtectedApp handle the main loader.
+  if (isUserLoading) {
     return (
       <div className="flex justify-center items-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -189,7 +164,7 @@ export function SignIn() {
     return null;
   }
   
-  const isLoadingForms = isSubmitting;
+  const isLoadingForms = isSubmitting || isGoogleLoading;
 
   return (
     <Card className="w-full">
@@ -247,7 +222,7 @@ export function SignIn() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoadingForms}>
-                  {isSubmitting && (
+                  {isSubmitting && !isGoogleLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   Sign In
@@ -314,7 +289,7 @@ export function SignIn() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoadingForms}>
-                  {isSubmitting && (
+                  {isSubmitting && !isGoogleLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   Create Account
@@ -337,7 +312,7 @@ export function SignIn() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleSignIn}
-          disabled={isLoadingForms || isGoogleLoading}
+          disabled={isLoadingForms}
         >
            {isGoogleLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
