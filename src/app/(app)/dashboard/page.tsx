@@ -53,7 +53,7 @@ export default function DashboardPage() {
       <section>
         <h2 className="text-xl font-headline font-semibold mb-4">Quick Actions</h2>
         <div className="grid gap-4 md:grid-cols-2">
-          <Card className="hover:bg-card/90 transition-colors">
+          <Card className="transition-shadow hover:shadow-lg">
             <Link href="/upload" className="block h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export default function DashboardPage() {
               </CardContent>
             </Link>
           </Card>
-          <Card className="hover:bg-card/90 transition-colors">
+          <Card className="transition-shadow hover:shadow-lg">
             <Link href="/compare" className="block h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

@@ -6,6 +6,7 @@ import {
   GitCompareArrows,
   History,
   LayoutDashboard,
+  LogOut,
   Settings,
   UploadCloud,
 } from 'lucide-react';
@@ -14,6 +15,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarSeparator,
+  SidebarContent,
+  SidebarFooter,
 } from '@/components/ui/sidebar';
 
 const navItems = [
@@ -28,21 +32,36 @@ export function AppNav() {
   const pathname = usePathname();
 
   return (
-    <SidebarMenu>
-      {navItems.map((item) => (
-        <SidebarMenuItem key={item.href}>
-          <SidebarMenuButton
-            asChild
-            isActive={pathname === item.href}
-            tooltip={item.label}
-          >
-            <Link href={item.href}>
-              <item.icon />
-              <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
-    </SidebarMenu>
+    <>
+      <SidebarContent>
+        <SidebarMenu>
+          {navItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.href}
+                tooltip={item.label}
+              >
+                <Link href={item.href}>
+                  <item.icon />
+                  <span>{item.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarSeparator />
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Log Out">
+              <LogOut />
+              <span>Log Out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </>
   );
 }
