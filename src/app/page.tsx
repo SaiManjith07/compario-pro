@@ -5,6 +5,7 @@ import {
   History,
 } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const features = [
   {
@@ -57,15 +58,19 @@ export default function LandingPage() {
       {/* Feature List Section */}
       <section className="py-20 sm:py-32">
         <div className="container px-4">
-           <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-3">
+           <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-3">
             {features.map((feature, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                   {feature.icon}
-                </div>
-                <h3 className="mb-2 text-xl font-bold">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
+              <Card key={index} className="flex transform flex-col items-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                <CardHeader className="items-center">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                     {feature.icon}
+                  </div>
+                  <CardTitle>{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
