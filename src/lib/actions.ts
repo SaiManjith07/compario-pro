@@ -35,16 +35,15 @@ export async function detectProductFromImage(prevState: any, formData: FormData)
   }
 }
 
-function generateMockPrices(productName: string): Omit<PriceResult, 'image'>[] {
+function generateMockPrices(productName: string): PriceResult[] {
   const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
-  const results: Omit<PriceResult, 'image'>[] = [];
+  const results: PriceResult[] = [];
   // Use a hash of the product name to generate a more consistent base price
   const nameHash = productName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-  const basePrice = (Math.abs(nameHash) % 30000) + 5000; // Prices between ₹5000 and ₹35000
+  const basePrice = (Math.abs(nameHash) % 80000) + 10000; // Prices between ₹10,000 and ₹90,000
 
   stores.forEach((store) => {
     // Each store has a slightly different pricing strategy.
-    // Making this more random and less predictable.
     let storeMultiplier: number;
     switch(store) {
       case 'Amazon':
@@ -66,7 +65,7 @@ function generateMockPrices(productName: string): Omit<PriceResult, 'image'>[] {
         storeMultiplier = 1.0;
     }
 
-    const price = parseFloat((basePrice * storeMultiplier / 100).toFixed(2));
+    const price = parseFloat((basePrice * storeMultiplier).toFixed(2));
     
     let url = '';
     const encodedProductName = encodeURIComponent(productName);

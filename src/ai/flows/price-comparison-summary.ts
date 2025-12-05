@@ -38,13 +38,13 @@ const prompt = ai.definePrompt({
   name: 'priceComparisonSummaryPrompt',
   input: {schema: PriceComparisonSummaryInputSchema},
   output: {schema: PriceComparisonSummaryOutputSchema},
-  prompt: `You are an AI assistant that summarizes price comparisons for products.
+  prompt: `You are an AI assistant that summarizes price comparisons for products. The currency for all prices is Indian Rupees (₹).
 
-  Given the product name and a list of price comparison results from different stores, your task is to generate a concise summary highlighting the key differences and the best deals available.
+  Given the product name and a list of price comparison results from different stores, your task is to generate a concise summary. This summary should highlight the key differences and the best deals available. Always use the '₹' symbol for prices in your summary.
 
   Product Name: {{{productName}}}
 
-  Price Comparison Results:
+  Price Comparison Results (in ₹):
   {{#each results}}
   - Store: {{store}}, Title: {{title}}, Price: {{price}}, URL: {{url}}
   {{/each}}
