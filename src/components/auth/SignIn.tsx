@@ -74,28 +74,41 @@ export function SignIn() {
     defaultValues: { name: '', email: '', password: '' },
   });
 
+  // Effect to check for redirect result from Google Sign-In
   useEffect(() => {
-    // This effect runs on page load to check for a redirect result
-    const checkRedirect = async () => {
+    // isUserLoading is the key here. It's true on initial load.
+    // When getRedirectResult is called, it might trigger onAuthStateChanged,
+    // setting isUserLoading to false and providing a user.
+    // We also set isGoogleLoading to true before redirecting, so we can check that.
+    const checkRedirectResult = async () => {
       try {
+        // By setting isGoogleLoading, we can show a specific loader for the redirect
+        setIsGoogleLoading(true); 
         const result = await getRedirectResult(auth);
+        // If result is not null, a sign-in just completed.
+        // The `onAuthStateChanged` listener in our `FirebaseProvider` will handle
+        // the user state update, and the `ProtectedApp` component will redirect.
         if (result) {
-          // Google Sign-In was successful, user is now logged in.
-          // The main user listener will handle the redirect.
-          setIsGoogleLoading(false); // Stop loading indicator
+          // You can add a toast here if you want
+          // toast({ title: 'Signed in successfully!' });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error during Google sign-in redirect:', error);
         toast({
           variant: 'destructive',
           title: 'Google Sign-In Failed',
-          description: 'Could not complete sign-in. Please try again.',
+          description: error.message || 'Could not complete sign-in. Please try again.',
         });
+      } finally {
+        // This is important: stop the loading indicator regardless of outcome
         setIsGoogleLoading(false);
       }
     };
-    checkRedirect();
+
+    // We only want to run this check once on initial load.
+    checkRedirectResult();
   }, [auth, toast]);
+
 
   useEffect(() => {
     // This effect handles redirecting the user AFTER they have logged in.
@@ -108,15 +121,16 @@ export function SignIn() {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
+    // We don't await here because signInWithRedirect navigates away.
+    // The result is handled by the useEffect hook on the next page load.
     await signInWithRedirect(auth, provider);
-    // The browser will redirect. The result is handled by the useEffect hook.
   };
 
   const handleEmailSignIn = async (values: z.infer<typeof signInSchema>) => {
     setIsSubmitting(true);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      // Redirect is handled by the useEffect
+      // Redirect is handled by the useEffect that watches the `user` state
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -323,23 +337,27 @@ export function SignIn() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleSignIn}
-          disabled={isLoadingForms}
+          disabled={isLoadingForms || isGoogleLoading}
         >
-          <svg
-            className="mr-2 h-4 w-4"
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fab"
-            data-icon="google"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 488 512"
-          >
-            <path
-              fill="currentColor"
-              d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 261.8 0 122.4 109.8 13.6 244 13.6c70.3 0 129.8 27.8 175.3 73.6L363.5 150c-29.2-28.1-68.9-45.3-119.5-45.3-95.8 0-173.4 77.3-173.4 172.3s77.6 172.3 173.4 172.3c62.7 0 101-25.2 133-55.9 25.4-24.6 39-57.6 44.7-99.1H244V259.9h239.8c2.6 14.1 4.2 29.2 4.2 45.9z"
-            ></path>
-          </svg>
+           {isGoogleLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <svg
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fab"
+              data-icon="google"
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 488 512"
+            >
+              <path
+                fill="currentColor"
+                d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 261.8 0 122.4 109.8 13.6 244 13.6c70.3 0 129.8 27.8 175.3 73.6L363.5 150c-29.2-28.1-68.9-45.3-119.5-45.3-95.8 0-173.4 77.3-173.4 172.3s77.6 172.3 173.4 172.3c62.7 0 101-25.2 133-55.9 25.4-24.6 39-57.6 44.7-99.1H244V259.9h239.8c2.6 14.1 4.2 29.2 4.2 45.9z"
+              ></path>
+            </svg>
+          )}
           Sign in with Google
         </Button>
       </CardContent>
