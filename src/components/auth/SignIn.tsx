@@ -172,7 +172,7 @@ export function SignIn() {
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle>Welcome to PriceWise</CardTitle>
+        <CardTitle>Welcome to Compario</CardTitle>
         <CardDescription>
           Sign in or create an account to continue
         </CardDescription>

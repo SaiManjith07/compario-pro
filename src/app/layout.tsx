@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'PriceWise',
+  title: 'Compario',
   description: 'AI-Powered Price Comparison Web Application',
 };
 

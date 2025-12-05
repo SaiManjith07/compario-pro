@@ -23,7 +23,7 @@ export default function MarketingLayout({
       <footer className="border-t">
         <div className="container flex items-center justify-center p-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} PriceWise. All rights reserved.
+            &copy; {new Date().getFullYear()} Compario. All rights reserved.
           </p>
         </div>
       </footer>

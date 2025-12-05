@@ -46,7 +46,7 @@ export default function LandingPage() {
             </span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            Stop switching between tabs. PriceWise uses AI to instantly compare prices from multiple online stores, ensuring you never overpay again.
+            Stop switching between tabs. Compario uses AI to instantly compare prices from multiple online stores, ensuring you never overpay again.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button size="lg" asChild>
@@ -92,7 +92,7 @@ export default function LandingPage() {
               <CardContent className="p-0">
                 <Image
                   src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzaG9wcGluZyUyMGRhc2hib2FyZHxlbnwwfHx8fDE3NjQ4MzU1MDl8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                  alt="PriceWise Dashboard Screenshot"
+                  alt="Compario Dashboard Screenshot"
                   width={1200}
                   height={750}
                   className="w-full"

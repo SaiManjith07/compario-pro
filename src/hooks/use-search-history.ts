@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { SearchHistoryEntry } from '@/lib/types';
 
-const HISTORY_KEY = 'priceWiseSearchHistory';
+const HISTORY_KEY = 'comparioSearchHistory';
 const MAX_HISTORY_ITEMS = 10;
 
 export function useSearchHistory() {
