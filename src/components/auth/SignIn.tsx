@@ -26,7 +26,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -59,6 +59,7 @@ export function SignIn() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -73,12 +74,13 @@ export function SignIn() {
     defaultValues: { name: '', email: '', password: '' },
   });
 
+  // Redirect if user is already logged in
   useEffect(() => {
-    // This effect handles redirecting the user AFTER they have logged in.
     if (!isUserLoading && user) {
-      router.replace('/dashboard');
+      const redirectTo = searchParams.get('redirect_to') || '/dashboard';
+      router.replace(redirectTo);
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, searchParams]);
 
 
   const handleGoogleSignIn = async () => {
@@ -86,7 +88,7 @@ export function SignIn() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // The onAuthStateChanged listener in ProtectedApp will handle the redirect
+      // The useEffect hook will handle the redirect
     } catch (error: any) {
       console.error('Error during Google sign-in:', error);
        toast({
@@ -150,16 +152,17 @@ export function SignIn() {
     }
   };
 
-  // Show a loader if Firebase is checking auth state. Let ProtectedApp handle the main loader.
+  // While Firebase is checking the user's auth state, show a loader.
+  // This prevents the login form from flashing before redirecting.
   if (isUserLoading) {
     return (
-      <div className="flex justify-center items-center p-8">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
   
-  // Don't render the form if the user is already logged in (and about to be redirected)
+  // If the user is already logged in, we render null while the useEffect redirects them.
   if (user) {
     return null;
   }

@@ -1,7 +1,16 @@
 import { SignIn } from '@/components/auth/SignIn';
 import { AppLogo } from '@/components/AppLogo';
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 
-// Re-triggering build to enable auth providers
+function LoginPageFallback() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-background">
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    </div>
+  );
+}
+
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -9,7 +18,9 @@ export default function LoginPage() {
         <div className="flex justify-center">
           <AppLogo />
         </div>
-        <SignIn />
+        <Suspense fallback={<LoginPageFallback />}>
+          <SignIn />
+        </Suspense>
       </div>
     </div>
   );
