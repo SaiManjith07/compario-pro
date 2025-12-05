@@ -1,14 +1,9 @@
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import {
   ScanSearch,
   UploadCloud,
   History,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 const features = [
@@ -55,34 +50,6 @@ export default function LandingPage() {
             <Button size="lg" variant="outline" asChild>
                <Link href="/compare">Try a Live Demo</Link>
             </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Visual Showcase Section */}
-      <section className="bg-muted/50 py-20 sm:py-32">
-        <div className="container px-4">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Your Smart Shopping Dashboard
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              A clear, intuitive interface that puts all the power at your fingertips.
-            </p>
-          </div>
-          <div className="mt-10">
-            <Card className="overflow-hidden bg-background shadow-2xl">
-              <CardContent className="p-0">
-                <Image
-                  src="https://images.unsplash.com/photo-1600880292210-f7615b1778d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHlsaXNoJTIwZGFzaGJvYXJkJTIwdWl8ZW58MHx8fHwxNzY0ODU0NDIyfDA&ixlib=rb-4.1.0&q=80&w=1080"
-                  alt="Compario Dashboard Screenshot"
-                  width={1200}
-                  height={750}
-                  className="w-full"
-                  data-ai-hint="stylish dashboard ui"
-                />
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
