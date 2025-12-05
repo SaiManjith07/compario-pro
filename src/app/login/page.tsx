@@ -1,6 +1,7 @@
 import { SignIn } from '@/components/auth/SignIn';
 import { AppLogo } from '@/components/AppLogo';
 
+// Re-triggering build to enable auth providers
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
