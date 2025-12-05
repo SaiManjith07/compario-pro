@@ -2,12 +2,8 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import {
-  CheckCircle,
   ScanSearch,
   UploadCloud,
   History,
@@ -37,8 +33,12 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="py-20 sm:py-32">
-        <div className="container px-4 text-center">
+      <section className="relative overflow-hidden py-20 sm:py-32">
+         <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background"
+        />
+        <div className="container relative px-4 text-center">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
             Find the Best Price,{' '}
             <span className="bg-gradient-to-r from-primary to-green-400 bg-clip-text text-transparent">
@@ -59,25 +59,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature List Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container px-4">
-           <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-3">
-            {features.map((feature, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                   {feature.icon}
-                </div>
-                <h3 className="mb-2 text-xl font-bold">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Visual Showcase Section */}
-      <section className="bg-muted py-20 sm:py-32">
+      <section className="bg-muted/50 py-20 sm:py-32">
         <div className="container px-4">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -91,12 +74,12 @@ export default function LandingPage() {
             <Card className="overflow-hidden bg-background shadow-2xl">
               <CardContent className="p-0">
                 <Image
-                  src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzaG9wcGluZyUyMGRhc2hib2FyZHxlbnwwfHx8fDE3NjQ4MzU1MDl8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  src="https://images.unsplash.com/photo-1600880292210-f7615b1778d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHlsaXNoJTIwZGFzaGJvYXJkJTIwdWl8ZW58MHx8fHwxNzY0ODU0NDIyfDA&ixlib=rb-4.1.0&q=80&w=1080"
                   alt="Compario Dashboard Screenshot"
                   width={1200}
                   height={750}
                   className="w-full"
-                  data-ai-hint="shopping dashboard"
+                  data-ai-hint="stylish dashboard ui"
                 />
               </CardContent>
             </Card>
@@ -104,6 +87,22 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Feature List Section */}
+      <section className="py-20 sm:py-32">
+        <div className="container px-4">
+           <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-3">
+            {features.map((feature, index) => (
+              <div key={index} className="flex flex-col items-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                   {feature.icon}
+                </div>
+                <h3 className="mb-2 text-xl font-bold">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

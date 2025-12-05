@@ -21,7 +21,7 @@ export default function MarketingLayout({
       </header>
       <main className="flex-1">{children}</main>
       <footer className="border-t">
-        <div className="container flex items-center justify-center p-4">
+        <div className="container flex items-center justify-between p-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Compario. All rights reserved.
           </p>
