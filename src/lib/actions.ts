@@ -39,27 +39,20 @@ function generateMockPrices(productName: string): PriceResult[] {
   const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
   const results: PriceResult[] = [];
   
-  // Use a hash of the product name to generate a more consistent base price and availability
+  // Use a hash of the product name to generate a more consistent base price
   const nameHash = productName.toLowerCase().split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
   
-  // Decide if the product is "found" at all. Some niche terms won't be found.
-  if (Math.abs(nameHash % 10) < 1) { // ~10% chance of not finding the product anywhere
-      return [];
-  }
-
   const basePrice = (Math.abs(nameHash) % 80000) + 10000; // Prices between ₹10,000 and ₹90,000
 
   stores.forEach((store, index) => {
-    // Simulate availability - not every store will have every item
-    const availabilityHash = (nameHash >> (index * 2)) & 3; // Use different bits for each store
-    if (availabilityHash === 0) { // ~25% chance for each store to not have the item
-        return; 
-    }
-
     // Each store has a slightly different pricing strategy.
     let storeMultiplier: number;
-    const randomSeed = (nameHash + index) / (stores.length);
-    const pseudoRandom = () => (Math.sin(randomSeed) + 1) / 2;
+    // Simple pseudo-random number generator based on hash and index to keep it deterministic
+    const pseudoRandom = () => {
+        let seed = nameHash + index * 100;
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
 
     switch(store) {
       case 'Amazon':
