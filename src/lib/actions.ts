@@ -38,28 +38,44 @@ export async function detectProductFromImage(prevState: any, formData: FormData)
 function generateMockPrices(productName: string): PriceResult[] {
   const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
   const results: PriceResult[] = [];
-  // Use a hash of the product name to generate a more consistent base price
-  const nameHash = productName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+  
+  // Use a hash of the product name to generate a more consistent base price and availability
+  const nameHash = productName.toLowerCase().split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+  
+  // Decide if the product is "found" at all. Some niche terms won't be found.
+  if (Math.abs(nameHash % 10) < 1) { // ~10% chance of not finding the product anywhere
+      return [];
+  }
+
   const basePrice = (Math.abs(nameHash) % 80000) + 10000; // Prices between ₹10,000 and ₹90,000
 
-  stores.forEach((store) => {
+  stores.forEach((store, index) => {
+    // Simulate availability - not every store will have every item
+    const availabilityHash = (nameHash >> (index * 2)) & 3; // Use different bits for each store
+    if (availabilityHash === 0) { // ~25% chance for each store to not have the item
+        return; 
+    }
+
     // Each store has a slightly different pricing strategy.
     let storeMultiplier: number;
+    const randomSeed = (nameHash + index) / (stores.length);
+    const pseudoRandom = () => (Math.sin(randomSeed) + 1) / 2;
+
     switch(store) {
       case 'Amazon':
-        storeMultiplier = 0.95 + (Math.random() * 0.1); // -5% to +5%
+        storeMultiplier = 0.95 + (pseudoRandom() * 0.1); // -5% to +5%
         break;
       case 'Walmart':
-        storeMultiplier = 0.92 + (Math.random() * 0.1); // -8% to +2% (often cheaper)
+        storeMultiplier = 0.92 + (pseudoRandom() * 0.1); // -8% to +2% (often cheaper)
         break;
       case 'eBay':
-        storeMultiplier = 0.98 + (Math.random() * 0.15); // Wider range for marketplace
+        storeMultiplier = 0.98 + (pseudoRandom() * 0.15); // Wider range for marketplace
         break;
       case 'Best Buy':
-        storeMultiplier = 1.0 + (Math.random() * 0.1); // MSRP or slightly higher
+        storeMultiplier = 1.0 + (pseudoRandom() * 0.1); // MSRP or slightly higher
         break;
       case 'Target':
-        storeMultiplier = 0.97 + (Math.random() * 0.12); // Competitive pricing
+        storeMultiplier = 0.97 + (pseudoRandom() * 0.12); // Competitive pricing
         break;
       default:
         storeMultiplier = 1.0;
@@ -113,7 +129,7 @@ export async function searchPrices(productName: string): Promise<ComparisonData>
       productName,
       results: [],
       bestPrice: null,
-      summary: 'No prices found for this product.',
+      summary: `We couldn't find any reliable prices for "${productName}" at the moment. Please try a different search term or check back later.`,
     };
   }
 
@@ -122,7 +138,9 @@ export async function searchPrices(productName: string): Promise<ComparisonData>
     results,
   });
 
-  const bestPrice = results.reduce((best, current) => (current.price < best.price ? current : best), results[0]);
+  const bestPrice = results.length > 0 
+    ? results.reduce((best, current) => (current.price < best.price ? current : best), results[0])
+    : null;
 
   return {
     productName,
