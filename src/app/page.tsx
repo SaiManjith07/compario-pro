@@ -91,7 +91,7 @@ export default function LandingPage() {
             <Card className="overflow-hidden bg-background shadow-2xl">
               <CardContent className="p-0">
                 <Image
-                  src="https://images.unsplash.com/photo-1699694518322-a18a514a6b24?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzaG9wcGluZyUyMGRhc2hib2FyZHxlbnwwfHx8fDE3NjQ4MzU1MDl8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzaG9wcGluZyUyMGRhc2hib2FyZHxlbnwwfHx8fDE3NjQ4MzU1MDl8MA&ixlib=rb-4.1.0&q=80&w=1080"
                   alt="PriceWise Dashboard Screenshot"
                   width={1200}
                   height={750}
