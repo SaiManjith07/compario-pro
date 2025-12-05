@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase';
@@ -45,3 +46,5 @@ export function ProtectedApp({ children }: { children: React.ReactNode }) {
   // while the redirect is in progress.
   return null;
 }
+
+    

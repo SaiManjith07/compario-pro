@@ -75,7 +75,7 @@ export function SignIn() {
     defaultValues: { name: '', email: '', password: '' },
   });
 
-  // Redirect if user is already logged in
+  // Redirect if user successfully logs in
   useEffect(() => {
     if (!isUserLoading && user) {
       const redirectTo = searchParams.get('redirect_to') || '/dashboard';
@@ -152,21 +152,6 @@ export function SignIn() {
       setIsSubmitting(false);
     }
   };
-
-  // While Firebase is checking the user's auth state, show a loader.
-  // This prevents the login form from flashing before redirecting.
-  if (isUserLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
-  // If the user is already logged in, we render null while the useEffect redirects them.
-  if (user) {
-    return null;
-  }
   
   const isLoadingForms = isSubmitting || isGoogleLoading;
 
@@ -343,3 +328,5 @@ export function SignIn() {
     </Card>
   );
 }
+
+    
