@@ -10,7 +10,7 @@ import {
   Settings,
   UploadCloud,
 } from 'lucide-react';
-import { useAuth } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 
 import {
@@ -21,6 +21,16 @@ import {
   SidebarContent,
   SidebarFooter,
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
 const navItems = [
@@ -34,11 +44,21 @@ const navItems = [
 export function AppNav() {
   const pathname = usePathname();
   const auth = useAuth();
+  const { user } = useUser();
   const router = useRouter();
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+  };
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('');
   };
 
   return (
@@ -63,14 +83,42 @@ export function AppNav() {
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Log Out" onClick={handleLogout}>
-              <LogOut />
-              <span>Log Out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex h-auto w-full items-center justify-start gap-2 rounded-lg p-2"
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                  <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-start truncate group-data-[collapsible=icon]:hidden">
+                  <span className="font-semibold">{user.displayName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {user.email}
+                  </span>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span>My Account</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                     {user.email}
+                  </span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </SidebarFooter>
     </>
   );
