@@ -1,0 +1,123 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the PriceWise application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "The user's Google ID, used for Google authentication."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's name."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the user's profile image.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name"
+      ]
+    },
+    "SearchHistory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SearchHistory",
+      "type": "object",
+      "description": "Represents a user's search history entry.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SearchHistory entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N SearchHistory)"
+        },
+        "productName": {
+          "type": "string",
+          "description": "The name of the product searched."
+        },
+        "bestPrice": {
+          "type": "number",
+          "description": "The best price found for the product.",
+          "format": "float"
+        },
+        "searchDate": {
+          "type": "string",
+          "description": "The date and time when the search was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "productName",
+        "bestPrice",
+        "searchDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles.  Uses path-based ownership for simple security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/searchHistory/{searchHistoryId}",
+        "definition": {
+          "entityName": "SearchHistory",
+          "schema": {
+            "$ref": "#/backend/entities/SearchHistory"
+          },
+          "description": "Stores the search history for each user. Leverages path-based ownership and no denormalized fields are needed.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "searchHistoryId",
+              "description": "The unique identifier for the search history entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure prioritizes authorization independence and QAPs. User data is stored under `/users/{userId}`, enabling path-based ownership. Search history is located at `/users/{userId}/searchHistory/{searchHistoryId}`, also leveraging path-based ownership. This structure ensures that security rules can be written without relying on `get()` calls to parent documents, thus guaranteeing authorization independence.  The design uses structural segregation by storing each user's search history in a dedicated subcollection, which enforces a homogeneous security posture.  QAPs are satisfied because listing search history is straightforward and secure via rules enforcing `request.auth.uid == userId`."
+  }
+}
