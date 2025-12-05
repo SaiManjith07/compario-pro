@@ -10,6 +10,8 @@ import {
   Settings,
   UploadCloud,
 } from 'lucide-react';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 import {
   SidebarMenu,
@@ -19,6 +21,7 @@ import {
   SidebarContent,
   SidebarFooter,
 } from '@/components/ui/sidebar';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -30,6 +33,13 @@ const navItems = [
 
 export function AppNav() {
   const pathname = usePathname();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
 
   return (
     <>
@@ -55,7 +65,7 @@ export function AppNav() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Log Out">
+            <SidebarMenuButton tooltip="Log Out" onClick={handleLogout}>
               <LogOut />
               <span>Log Out</span>
             </SidebarMenuButton>
