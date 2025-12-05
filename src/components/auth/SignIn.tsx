@@ -3,6 +3,7 @@
 import {
   GoogleAuthProvider,
   signInWithRedirect,
+  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
@@ -74,27 +75,41 @@ export function SignIn() {
   });
 
   useEffect(() => {
+    // This effect runs on page load to check for a redirect result
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // Google Sign-In was successful, user is now logged in.
+          // The main user listener will handle the redirect.
+          setIsGoogleLoading(false); // Stop loading indicator
+        }
+      } catch (error) {
+        console.error('Error during Google sign-in redirect:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Google Sign-In Failed',
+          description: 'Could not complete sign-in. Please try again.',
+        });
+        setIsGoogleLoading(false);
+      }
+    };
+    checkRedirect();
+  }, [auth, toast]);
+
+  useEffect(() => {
+    // This effect handles redirecting the user AFTER they have logged in.
     if (!isUserLoading && user) {
       router.replace('/dashboard');
     }
   }, [user, isUserLoading, router]);
 
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithRedirect(auth, provider);
-      // The user will be redirected. The onAuthStateChanged listener will handle the result
-      // when they are redirected back to the app. We don't need to do anything else here.
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Google Sign-In Failed',
-        description: 'An unexpected error occurred. Please try again.',
-      });
-      setIsGoogleLoading(false);
-    }
+    await signInWithRedirect(auth, provider);
+    // The browser will redirect. The result is handled by the useEffect hook.
   };
 
   const handleEmailSignIn = async (values: z.infer<typeof signInSchema>) => {
@@ -146,9 +161,8 @@ export function SignIn() {
     }
   };
 
-  // If we are loading the user state, or if the user is already logged in (and will be redirected), show a loader.
-  // Also show a loader if a Google sign-in is in progress.
-  if (isUserLoading || user || isGoogleLoading) {
+  // Show a loader if Firebase is checking auth state, or a Google sign-in is in progress.
+  if (isUserLoading || isGoogleLoading) {
     return (
       <div className="flex justify-center items-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -156,7 +170,12 @@ export function SignIn() {
     );
   }
   
-  const isLoadingForms = isSubmitting || isUserLoading;
+  // Don't render the form if the user is already logged in (and about to be redirected)
+  if (user) {
+    return null;
+  }
+  
+  const isLoadingForms = isSubmitting;
 
   return (
     <Card className="w-full">
@@ -304,7 +323,7 @@ export function SignIn() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleSignIn}
-          disabled={isLoadingForms || isGoogleLoading}
+          disabled={isLoadingForms}
         >
           <svg
             className="mr-2 h-4 w-4"
