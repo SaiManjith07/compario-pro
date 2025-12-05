@@ -51,7 +51,7 @@ const productIdentificationPrompt = ai.definePrompt({
   },
   output: {
     schema: z.object({
-      productName: z.string().describe('The detected product name, including its brand.'),
+      productName: z.string().describe('The detected product name, including its brand and model.'),
       labels: z.array(z.string()).describe('Labels extracted from the image.'),
     }),
   },
@@ -60,7 +60,7 @@ const productIdentificationPrompt = ai.definePrompt({
 CRITICAL INSTRUCTIONS:
 1.  **Prioritize Visible Information:** Base your identification strictly on any visible text, logos, or branding on the product in the image.
 2.  **Do Not Hallucinate:** If you cannot clearly identify a brand or model from the image, state that. Do not guess or suggest similar-sounding brands.
-3.  **Be Specific:** Provide the most specific name possible. For example, instead of "headphones," identify it as "Sony WH-1000XM5 Headphones" if that information is visible.
+3.  **Be Specific:** Provide the most specific name possible. For example, instead of "headphones," identify it as "Sony WH-1000XM5 Headphones" if that information is visible. Instead of "iPhone", identify it as "iPhone 15 Pro Max" if the details are discernible.
 
 Analyze the attached image and return the product name.
 
