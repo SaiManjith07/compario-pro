@@ -39,36 +39,57 @@ function generateMockPrices(productName: string): PriceResult[] {
   const stores = ['Amazon', 'eBay', 'Walmart', 'Best Buy', 'Target'];
   const results: PriceResult[] = [];
   
-  // Use a hash of the product name to generate a more consistent base price
-  const nameHash = productName.toLowerCase().split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+  const lowerCaseProduct = productName.toLowerCase();
   
-  const basePrice = (Math.abs(nameHash) % 80000) + 10000; // Prices between ₹10,000 and ₹90,000
+  // Use a hash of the product name for pseudo-randomness
+  const nameHash = lowerCaseProduct.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+  
+  // Simple pseudo-random number generator based on hash
+  const pseudoRandom = (seed: number) => {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+  };
+  
+  let basePrice: number;
+  
+  // Keyword-based pricing tiers for more realistic prices
+  if (lowerCaseProduct.includes('iphone') || lowerCaseProduct.includes('galaxy') || lowerCaseProduct.includes('pixel') || lowerCaseProduct.includes('smartphone')) {
+      basePrice = 60000 + pseudoRandom(nameHash) * 60000; // 60k - 120k
+  } else if (lowerCaseProduct.includes('macbook') || lowerCaseProduct.includes('laptop') || lowerCaseProduct.includes('notebook')) {
+      basePrice = 50000 + pseudoRandom(nameHash) * 100000; // 50k - 150k
+  } else if (lowerCaseProduct.includes('headphone') || lowerCaseProduct.includes('earbuds') || lowerCaseProduct.includes('airpods')) {
+      basePrice = 2000 + pseudoRandom(nameHash) * 28000; // 2k - 30k
+  } else if (lowerCaseProduct.includes('watch') || lowerCaseProduct.includes('smartwatch')) {
+      basePrice = 15000 + pseudoRandom(nameHash) * 35000; // 15k - 50k
+  } else if (lowerCaseProduct.includes('camera')) {
+      basePrice = 30000 + pseudoRandom(nameHash) * 170000; // 30k - 200k
+  } else if (lowerCaseProduct.includes('gaming console') || lowerCaseProduct.includes('playstation') || lowerCaseProduct.includes('xbox')) {
+      basePrice = 35000 + pseudoRandom(nameHash) * 20000; // 35k - 55k
+  } else {
+      // Default fallback for other items
+      basePrice = (Math.abs(nameHash) % 80000) + 10000; // Prices between ₹10,000 and ₹90,000
+  }
+
 
   stores.forEach((store, index) => {
-    // Each store has a slightly different pricing strategy.
     let storeMultiplier: number;
-    // Simple pseudo-random number generator based on hash and index to keep it deterministic
-    const pseudoRandom = () => {
-        let seed = nameHash + index * 100;
-        const x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-    };
+    const storeSeed = nameHash + index * 100;
 
     switch(store) {
       case 'Amazon':
-        storeMultiplier = 0.95 + (pseudoRandom() * 0.1); // -5% to +5%
+        storeMultiplier = 0.95 + (pseudoRandom(storeSeed) * 0.1); // -5% to +5%
         break;
       case 'Walmart':
-        storeMultiplier = 0.92 + (pseudoRandom() * 0.1); // -8% to +2% (often cheaper)
+        storeMultiplier = 0.92 + (pseudoRandom(storeSeed) * 0.1); // -8% to +2% (often cheaper)
         break;
       case 'eBay':
-        storeMultiplier = 0.98 + (pseudoRandom() * 0.15); // Wider range for marketplace
+        storeMultiplier = 0.98 + (pseudoRandom(storeSeed) * 0.15); // Wider range for marketplace
         break;
       case 'Best Buy':
-        storeMultiplier = 1.0 + (pseudoRandom() * 0.1); // MSRP or slightly higher
+        storeMultiplier = 1.0 + (pseudoRandom(storeSeed) * 0.1); // MSRP or slightly higher
         break;
       case 'Target':
-        storeMultiplier = 0.97 + (pseudoRandom() * 0.12); // Competitive pricing
+        storeMultiplier = 0.97 + (pseudoRandom(storeSeed) * 0.12); // Competitive pricing
         break;
       default:
         storeMultiplier = 1.0;
