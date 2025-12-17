@@ -146,11 +146,25 @@ export async function searchPrices(productName: string): Promise<ComparisonData>
       summary: `We couldn't find any reliable prices for "${productName}" at the moment. Please try a different search term or check back later.`,
     };
   }
+  
+  let summary = `Here's a summary of prices for "${productName}". The best price we found is listed below.`;
+  try {
+    const summaryResult = await getPriceComparisonSummary({
+      productName,
+      results,
+    });
+    summary = summaryResult.summary;
+  } catch (error) {
+    console.error("AI summary generation failed. Using default summary.", error);
+    // Find best price to include in the default summary
+    const bestPrice = results.length > 0
+      ? results.reduce((min, p) => p.price < min.price ? p : min, results[0])
+      : null;
+    if (bestPrice) {
+      summary = `The best price found for "${productName}" is ₹${bestPrice.price.toFixed(2)} at ${bestPrice.store}. See all options below. (AI summary is temporarily unavailable).`;
+    }
+  }
 
-  const summaryResult = await getPriceComparisonSummary({
-    productName,
-    results,
-  });
 
   const bestPrice = results.length > 0 
     ? results.reduce((best, current) => (current.price < best.price ? current : best), results[0])
@@ -160,7 +174,7 @@ export async function searchPrices(productName: string): Promise<ComparisonData>
     productName,
     results,
     bestPrice,
-    summary: summaryResult.summary,
+    summary: summary,
   };
 }
 
