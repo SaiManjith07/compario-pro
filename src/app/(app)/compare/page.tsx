@@ -7,7 +7,6 @@ import CompareClient from '@/components/compare/CompareClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { ArrowRight } from 'lucide-react';
 
 function CompareFallback() {
   return (
@@ -51,7 +50,7 @@ export default function ComparePage({
         title="Compare Prices"
         description="Search for a product by name to see prices from different stores."
       />
-      {/* Suspense is key for streaming the server-rendered result */}
+
       <Suspense fallback={<CompareFallback />}>
         <CompareData productName={productName} />
       </Suspense>
