@@ -1,0 +1,102 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model. All user-related data,
+ * including profiles and search histories, is isolated within a path structure dedicated to
+ * that specific user. Access is granted only to the authenticated user who owns that data tree.
+ *
+ * Data Structure: The data is organized hierarchically under the `/users/{userId}` collection.
+ * Each user has their own document, and their private data, like search history, is stored
+ * in subcollections within their document tree (e.g., /users/{userId}/searchHistory/{...}).
+ *
+ * Key Security Decisions:
+ * - User Listing is Disallowed: It is not possible to query the top-level `/users` collection,
+ *   preventing malicious actors from scraping a list of all application users.
+ * - Strict Path-Based Ownership: Authorization is determined by matching the authenticated
+ *   user's UID (`request.auth.uid`) with the `{userId}` wildcard in the document path.
+ * - Authorization Independence: By using a hierarchical structure, these rules avoid costly
+ *   and slow `get()` or `exists()` calls to other documents for authorization decisions.
+ *   The path itself provides all necessary context.
+ *
+ * Denormalization for Authorization: This ruleset is designed to AVOID denormalization for auth.
+ * The path-based ownership (`/users/{userId}/...`) provides a simple, performant, and highly
+ * secure way to control access without needing to copy ownership fields onto child documents.
+ *
+ * Structural Segregation: User-specific data (`searchHistory`) is stored in a private
+ * subcollection under the user's document. This is more secure and performant for listing
+ * operations than commingling private data in a single top-level collection.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ----------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the core of the ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * A robust check for update/delete operations.
+     * Verifies ownership AND ensures the document already exists.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Collection Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents. Only the authenticated owner of a profile
+     *              can access or modify it. Users can create their own profile.
+     * @path /users/{userId}
+     * @allow A signed-in user with UID 'user123' can (create) their own profile at /users/user123.
+     * @deny  A user with UID 'user456' is denied from trying to (get) or (update) the profile at /users/user123.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      // READs: Only the owner can get their own profile. Listing all users is forbidden.
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // WRITEs: Users can create their own profile, and only owners can modify or delete it.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Controls access to a user's search history. Only the user who owns
+       *              the history can read, write, or delete entries.
+       * @path /users/{userId}/searchHistory/{searchHistoryId}
+       * @allow User 'user123' can (create) a new search history document at /users/user123/searchHistory/search_abc.
+       * @deny  User 'user456' is denied from trying to (list) documents from /users/user123/searchHistory.
+       * @principle Enforces document ownership for a private subcollection.
+       */
+      match /searchHistory/{searchHistoryId} {
+        // READs: Only the owner can get or list their own search history.
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+
+        // WRITEs: Only the owner can create, update, or delete their search history entries.
+        // On creation, we enforce that the document's internal userId matches the path.
+        // On update, we enforce that the userId cannot be changed.
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}
