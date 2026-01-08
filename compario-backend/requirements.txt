@@ -1,0 +1,13 @@
+Django>=4.2,<7.0
+djangorestframework>=3.14.0
+psycopg2-binary>=2.9.0
+python-decouple>=3.8
+djangorestframework-simplejwt>=5.2.0
+django-cors-headers>=4.0.0
+Pillow>=10.0.0
+requests>=2.31.0
+# Hugging Face (FREE alternative to Google Vision - no billing required)
+transformers>=4.30.0
+torch>=2.0.0
+
+
